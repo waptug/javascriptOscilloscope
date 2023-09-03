@@ -4,7 +4,7 @@ Playing around with sound in javascript.
 
 Run this code in a test server to play with sound.
 
-This code displays a simple system to produce various sound wave types.
+This code displays a simple system to produce a Oscilloscope to show various sound wave types.
 Sine, Square, Triangle, sawtooth. 
 frequency from 40 Hz to 20K Hz
 Volume from 0 to full controled via sliders and drop downs.
