@@ -7,6 +7,12 @@
         #canvas {
             border: 1px solid black;
         }
+        #midiInfo {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -30,7 +36,10 @@
         <option value="triangle">Triangle</option>
         <option value="sawtooth">Sawtooth</option>
     </select><br>
-
+    <div id="midiInfo">
+        <h3>MIDI Data Stream</h3>
+        <p id="midiData">Awaiting MIDI input...</p>
+    </div>
     <canvas id="canvas" width="800" height="400"></canvas>
     
     <script src="midi.js"></script>
