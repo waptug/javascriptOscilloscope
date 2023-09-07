@@ -21,13 +21,89 @@ function handleMIDIMessage(message) {
     let note = message.data[1];
     let velocity = message.data.length > 2 ? message.data[2] : 0;
 
+    // Display MIDI info
+    let midiInfo = `Command: ${command}, Note: ${note}, Velocity: ${velocity}`;
+    document.getElementById('midiData').innerText = midiInfo;  // Update this line
+
+
+
     if (command === 144) {
         if (velocity > 0) {
             let frequency = 440.0 * Math.pow(2, (note - 69) / 12.0);
             oscAndSound.oscillator.frequency.setValueAtTime(frequency, oscAndSound.audioCtx.currentTime);
+            oscAndSound.gainNode.gain.setValueAtTime(1, oscAndSound.audioCtx.currentTime); // Turn the volume up
+        
+        // Map the velocity (0-127) to gain (0-1)
+        let volume = velocity / 127.0;
+        oscAndSound.gainNode.gain.setValueAtTime(volume, oscAndSound.audioCtx.currentTime);
+        
+        //oscAndSound.start();  // Start the oscillator
+        
+         // Update the volume slider and display value
+         document.getElementById('volume').value = volume;
+         document.getElementById('volumeValue').innerText = volume.toFixed(2);
+         
+         // Update the frequency slider and display value
+         document.getElementById('frequency').value = frequency;
+         document.getElementById('frequencyValue').innerText = frequency.toFixed(2);
+
+
         }
+        
+    }
+
+    if (command === 128) {
+
+            oscAndSound.gainNode.gain.setValueAtTime(0, oscAndSound.audioCtx.currentTime); // Turn the volume down to stop sound
+        }
+    
+
+
+
+
+        // Map Command 176, Note 21 to volume control - Nobe 1
+        if (command === 176 && note === 21) {
+            // Map the velocity (0-127) to gain (0-1)
+            let volume = velocity / 127.0;
+            oscAndSound.gainNode.gain.setValueAtTime(volume, oscAndSound.audioCtx.currentTime);
+            
+            // Update the volume slider and display value
+            document.getElementById('volume').value = volume;
+            document.getElementById('volumeValue').innerText = volume.toFixed(2);
+        }
+        // Map Command 176, Note 22 to frequency control - Nobe 2
+        if (command === 176 && note === 22) {
+            // Map the velocity (0-127) to frequency (e.g., 100-20000 Hz)
+            let frequency = 100 + ((20000 - 100) * velocity / 127.0);
+            oscAndSound.oscillator.frequency.setValueAtTime(frequency, oscAndSound.audioCtx.currentTime);
+            
+            // Update the frequency slider and display value
+            document.getElementById('frequency').value = frequency;
+            document.getElementById('frequencyValue').innerText = frequency.toFixed(2);
+        }
+
+            // Map Command 176, Note 23 to wave type control
+    if (command === 176 && note === 23) {
+        let waveType;
+        
+        // Map the velocity (0-127) to wave types
+        if (velocity < 32) {
+            waveType = 'sine';
+        } else if (velocity < 64) {
+            waveType = 'square';
+        } else if (velocity < 96) {
+            waveType = 'sawtooth';
+        } else {
+            waveType = 'triangle';
+        }
+
+        oscAndSound.oscillator.type = waveType;
+
+        // Update the wave type dropdown and display value
+        document.getElementById('waveType').value = waveType;
     }
 }
+
 
 // Function to initialize MIDI
 function initializeMIDI() {

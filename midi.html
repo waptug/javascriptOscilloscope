@@ -12,36 +12,54 @@
             padding: 10px;
             margin-bottom: 20px;
         }
+        #main-container {
+        display: flex;
+        flex-direction: row;
+        }
+
+        #controls-container {
+        flex: 1;
+        }
+
+        #scope-container {
+        flex: 2;
+        }
 
     </style>
 </head>
 <body>
-    <h1>Oscilloscope and Sound Generator</h1>
-    <button id="start">Start</button>
-    <button id="stop">Stop</button>
+    <div id="main-container">
+        <div id="controls-container">
+            <h1>Oscilloscope and Sound Generator</h1>
+            <button id="start">Start</button>
+            <button id="stop">Stop</button>
 
-    <h2>Controls</h2>
-    <label for="frequency">Frequency: </label>
-    <input id="frequency" type="range" min="0" max="14000" step="1" value="440">
-    <span id="frequencyValue">440</span> Hz<br>
+            <h2>Controls</h2>
+            <label for="frequency">Frequency: </label>
+            <input id="frequency" type="range" min="0" max="24000" step="1" value="440">
+            <span id="frequencyValue">440</span> Hz<br>
 
-    <label for="volume">Volume: </label>
-    <input id="volume" type="range" min="0" max="1" step="0.01" value="0.5">
-    <span id="volumeValue">0.5</span><br>
+            <label for="volume">Volume: </label>
+            <input id="volume" type="range" min="0" max="1" step="0.01" value="0.5">
+            <span id="volumeValue">0.5</span><br>
 
-    <label for="waveType">Wave Type: </label>
-    <select id="waveType">
-        <option value="sine">Sine</option>
-        <option value="square">Square</option>
-        <option value="triangle">Triangle</option>
-        <option value="sawtooth">Sawtooth</option>
-    </select><br>
-    <div id="midiInfo">
-        <h3>MIDI Data Stream</h3>
-        <p id="midiData">Awaiting MIDI input...</p>
-    </div>
-    <canvas id="canvas" width="800" height="400"></canvas>
-    
+            <label for="waveType">Wave Type: </label>
+            <select id="waveType">
+                <option value="sine">Sine</option>
+                <option value="square">Square</option>
+                <option value="triangle">Triangle</option>
+                <option value="sawtooth">Sawtooth</option>
+            </select><br>
+            <div id="midiInfo">
+                <h3>MIDI Data Stream</h3>
+                <p id="midiData">Awaiting MIDI input...</p>
+            </div>
+        </div>
+        <div id="scope-container">
+            <canvas id="canvas" width="800" height="400"></canvas>
+        </div>
+     </div>   
     <script src="midi.js"></script>
+
 </body>
 </html>
