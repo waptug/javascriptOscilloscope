@@ -1,3 +1,11 @@
+/**
+ * Midi Synth Scope
+ * By Michael Scott McGinn
+ * Version: 1
+ * Date: September 8th, 2023
+ */
+
+
 // Maintain a list of active oscillators
 let activeOscillators = {};
 
@@ -18,8 +26,13 @@ function handleMouseWheelEvent(event) {
     inputElement.dispatchEvent(new Event('input'));
 }
 
+// Function to convert MIDI note to note name
+function midiNoteToName(note) {
+    const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    return noteNames[note % 12] + Math.floor(note / 12);
+  }
+
 // Function to handle MIDI messages
-/*
 function handleMIDIMessage(message) {
     let command = message.data[0];
     let note = message.data[1];
@@ -28,61 +41,34 @@ function handleMIDIMessage(message) {
     // Display MIDI info
     let midiInfo = `Command: ${command}, Note: ${note}, Velocity: ${velocity}`;
     document.getElementById('midiData').innerText = midiInfo;
-
-    if (command === 144 && velocity > 0) {
+    
+    // Catch a key pressed
+    if (command === 144 && velocity > 0) {  //Note On
         let frequency = 440.0 * Math.pow(2, (note - 69) / 12.0);
-        let newOscillator = new OscilloscopeAndSound(frequency);
+        let gainValue = velocity / 127.0; // Normalize the velocity to a 0-1 range for gain
+        let noteName = midiNoteToName(note);
+        let newOscillator = new OscilloscopeAndSound(frequency, gainValue);
         newOscillator.start();
         activeOscillators[note] = newOscillator;
-    }
+        
 
-    if (command === 128 || (command === 144 && velocity === 0)) {
+        // Update the Note History
+        document.getElementById('midiDataBox').innerHTML += `Note On: ${noteName}, Frequency: ${frequency.toFixed(2)}<br>`;
+        document.getElementById('midiDataBox').scrollTop = document.getElementById('midiDataBox').scrollHeight;
+        }
+
+    if (command === 128 || (command === 144 && velocity === 0)) { // Note Off
+        let noteName = midiNoteToName(note);
         if (activeOscillators[note]) {
             activeOscillators[note].stop();
             delete activeOscillators[note];
         }
+
+          // Update the new div for Note Off
+          document.getElementById('midiDataBox').innerHTML += `Note Off: ${noteName}<br>`;
+          document.getElementById('midiDataBox').scrollTop = document.getElementById('midiDataBox').scrollHeight;
     }
-
-    // Map Command 176, Note 21 to volume control - Note 1
-    if (command === 176 && note === 21) {
-        // Map the velocity (0-127) to gain (0-1)
-        let volume = velocity / 127.0;
-        activeOscillators[note].gainNode.gain.setValueAtTime(volume, activeOscillators[note].audioCtx.currentTime);
-
-        // Update the volume slider and display value
-        document.getElementById('volume').value = volume;
-        document.getElementById('volumeValue').innerText = volume.toFixed(2);
-    }
-    // Map Command 176, Note 22 to frequency control - Note 2
-    if (command === 176 && note === 22) {
-        // Map the velocity (0-127) to frequency (e.g., 100-20000 Hz)
-        let frequency = 100 + ((20000 - 100) * velocity / 127.0);
-        activeOscillators[note].oscillator.frequency.setValueAtTime(frequency, activeOscillators[note].audioCtx.currentTime);
-
-        // Update the frequency slider and display value
-        document.getElementById('frequency').value = frequency;
-        document.getElementById('frequencyValue').innerText = frequency.toFixed(2);
-    }
-}
-*/
-//new
-// Function to handle MIDI messages
-function handleMIDIMessage(message) {
-    let command = message.data[0];
-    let note = message.data[1];
-    let velocity = message.data.length > 2 ? message.data[2] : 0;
-
-    // Display MIDI info
-    let midiInfo = `Command: ${command}, Note: ${note}, Velocity: ${velocity}`;
-    document.getElementById('midiData').innerText = midiInfo;
-
-    if (command === 144 && velocity > 0) {
-        let frequency = 440.0 * Math.pow(2, (note - 69) / 12.0);
-        let newOscillator = new OscilloscopeAndSound(frequency);
-        newOscillator.start();
-        activeOscillators[note] = newOscillator;
-    }
-
+       
     if (command === 128 || (command === 144 && velocity === 0)) {
         if (activeOscillators[note]) {
             activeOscillators[note].stop();
@@ -126,9 +112,6 @@ function handleMIDIMessage(message) {
     }
 }
 
-//new
-
-
 // Function to initialize MIDI
 function initializeMIDI() {
     if (navigator.requestMIDIAccess) {
@@ -147,12 +130,16 @@ function initializeMIDI() {
 
 // Oscilloscope and Sound Generator Class
 class OscilloscopeAndSound {
-    constructor(frequency = 440) {
+    constructor(frequency = 440, gainValue = 0.5) {
         this.audioCtx = new AudioContext();
         this.oscillator = this.audioCtx.createOscillator();
         this.oscillator.type = 'sine';
         this.oscillator.frequency.setValueAtTime(frequency, this.audioCtx.currentTime);
         this.gainNode = this.audioCtx.createGain();
+
+        this.gainNode.gain.setValueAtTime(gainValue, this.audioCtx.currentTime); // Set initial gain
+        
+
         this.canvas = document.getElementById('canvas');
         this.ctx = this.canvas.getContext('2d');
         this.timeData = new Float32Array(1024);
@@ -164,7 +151,7 @@ class OscilloscopeAndSound {
     }
 
     drawGrid() {
-        // Existing code for drawing grid
+        // code for drawing grid
         const ctx = this.ctx;
         const canvas = this.canvas;
         const stepX = canvas.width / 10;
@@ -197,7 +184,7 @@ class OscilloscopeAndSound {
     }
 
     draw() {
-        // Existing code for drawing
+        // Existing code for drawing wave
         requestAnimationFrame(() => this.draw());
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -228,4 +215,6 @@ class OscilloscopeAndSound {
 document.addEventListener('DOMContentLoaded', () => {
     initializeMIDI();
     // (Any other DOMContentLoaded code you have can go here)
+    // Add this line to clear the new div on page load
+    document.getElementById('midiDataBox').innerHTML = "";
 });

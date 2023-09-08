@@ -24,7 +24,10 @@
         #scope-container {
         flex: 2;
         }
-
+       
+        #midiDataBox {
+        width: 300px; height: 100px; overflow: auto; border: 1px solid black;
+        }
     </style>
 </head>
 <body>
@@ -54,10 +57,14 @@
                 <h3>MIDI Data Stream</h3>
                 <p id="midiData">Awaiting MIDI input...</p>
             </div>
+            
+            <div id="midiDataBox"></div>
+
         </div>
         <div id="scope-container">
             <canvas id="canvas" width="800" height="400"></canvas>
         </div>
+        
      </div>   
     <script src="polysynth.js"></script>
 
