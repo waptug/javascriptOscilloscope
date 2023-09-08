@@ -19,6 +19,7 @@ function handleMouseWheelEvent(event) {
 }
 
 // Function to handle MIDI messages
+/*
 function handleMIDIMessage(message) {
     let command = message.data[0];
     let note = message.data[1];
@@ -63,6 +64,70 @@ function handleMIDIMessage(message) {
         document.getElementById('frequencyValue').innerText = frequency.toFixed(2);
     }
 }
+*/
+//new
+// Function to handle MIDI messages
+function handleMIDIMessage(message) {
+    let command = message.data[0];
+    let note = message.data[1];
+    let velocity = message.data.length > 2 ? message.data[2] : 0;
+
+    // Display MIDI info
+    let midiInfo = `Command: ${command}, Note: ${note}, Velocity: ${velocity}`;
+    document.getElementById('midiData').innerText = midiInfo;
+
+    if (command === 144 && velocity > 0) {
+        let frequency = 440.0 * Math.pow(2, (note - 69) / 12.0);
+        let newOscillator = new OscilloscopeAndSound(frequency);
+        newOscillator.start();
+        activeOscillators[note] = newOscillator;
+    }
+
+    if (command === 128 || (command === 144 && velocity === 0)) {
+        if (activeOscillators[note]) {
+            activeOscillators[note].stop();
+            delete activeOscillators[note];
+        }
+    }
+
+    // Handle knobs and sliders here
+    if (command === 176) {
+        for (const activeNote in activeOscillators) {
+            let activeOsc = activeOscillators[activeNote];
+            if (note === 21) {
+                // Handle volume knob
+                let volume = velocity / 127.0;
+                activeOsc.gainNode.gain.setValueAtTime(volume, activeOsc.audioCtx.currentTime);
+                document.getElementById('volume').value = volume;
+                document.getElementById('volumeValue').innerText = volume.toFixed(2);
+            } else if (note === 22) {
+                // Handle frequency knob
+                let frequency = 100 + ((20000 - 100) * velocity / 127.0);
+                activeOsc.oscillator.frequency.setValueAtTime(frequency, activeOsc.audioCtx.currentTime);
+                document.getElementById('frequency').value = frequency;
+                document.getElementById('frequencyValue').innerText = frequency.toFixed(2);
+            }
+            else if (note === 23) {
+                // Handle wave selector knob
+                let waveType;
+                if (velocity < 32) {
+                    waveType = 'sine';
+                } else if (velocity < 64) {
+                    waveType = 'square';
+                } else if (velocity < 96) {
+                    waveType = 'sawtooth';
+                } else {
+                    waveType = 'triangle';
+                }
+                activeOsc.oscillator.type = waveType;
+                document.getElementById('waveType').value = waveType;
+            }
+        }
+    }
+}
+
+//new
+
 
 // Function to initialize MIDI
 function initializeMIDI() {
