@@ -3,6 +3,7 @@
  * By Michael Scott McGinn
  * Version: 2.1
  * Date: September 8th, 2023
+ * Github : https://github.com/waptug/javascriptOscilloscope
  */
 
 // Constants
